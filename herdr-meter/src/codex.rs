@@ -1,5 +1,6 @@
 //! Codex's `PostModelRequest` hook input, plus the rollout file it points at.
 
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 
@@ -43,15 +44,45 @@ impl Hook {
     }
 }
 
-/// Whether an `hc get --json` answer describes a terminal whose program is Codex.
+/// The process id of the terminal an `hc get --json` answer describes, when it runs Codex.
 ///
-/// Under Codex's shared app-server daemon a hook inherits the daemon's terminal, so a
-/// request counts only for a terminal that runs Codex itself.
+/// Under Codex's shared app-server daemon a hook inherits the daemon's terminal, which can
+/// run another agent or another Codex session; a request counts only when the hook runs
+/// under that terminal's own process (see [`descends_from`]).
 #[must_use]
-pub fn terminal_runs_codex(hc_get: &str) -> bool {
-    serde_json::from_str::<Value>(hc_get).is_ok_and(|terminal| {
-        terminal["status"]["app"] == "codex" || terminal["foreground"]["name"] == "codex"
-    })
+pub fn codex_terminal_pid(hc_get: &str) -> Option<u32> {
+    let terminal = serde_json::from_str::<Value>(hc_get).ok()?;
+    let codex = terminal["status"]["app"] == "codex" || terminal["foreground"]["name"] == "codex";
+    codex
+        .then(|| terminal["pid"].as_u64()?.try_into().ok())
+        .flatten()
+}
+
+/// Each process's parent, from `ps -A -o pid=,ppid=` output.
+#[must_use]
+pub fn parents(ps: &str) -> HashMap<u32, u32> {
+    ps.lines()
+        .filter_map(|line| {
+            let mut ids = line.split_whitespace().map(str::parse);
+            Some((ids.next()?.ok()?, ids.next()?.ok()?))
+        })
+        .collect()
+}
+
+/// Whether `pid` is `root` or runs under it.
+#[must_use]
+pub fn descends_from(parents: &HashMap<u32, u32>, mut pid: u32, root: u32) -> bool {
+    // A table read while processes come and go can hold a cycle; stop after one pass.
+    for _ in 0..=parents.len() {
+        if pid == root {
+            return true;
+        }
+        match parents.get(&pid) {
+            Some(&parent) if parent != pid => pid = parent,
+            _ => return false,
+        }
+    }
+    false
 }
 
 /// What only the rollout knows: the usage windows and the context size.

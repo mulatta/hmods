@@ -83,6 +83,7 @@ in
     };
 
     cargoLock.lockFile = meter + "/Cargo.lock";
+    nativeCheckInputs = [ pkgs.ps ];
 
     meta = {
       inherit (cargo) description;

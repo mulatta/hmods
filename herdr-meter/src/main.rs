@@ -102,18 +102,31 @@ fn ingest_claude(rest: &[&str]) -> Result<(), String> {
     recorded
 }
 
-/// Whether the terminal's program is Codex; `None` when hc cannot be asked.
-fn terminal_runs_codex(terminal: &str) -> Option<bool> {
+/// The process id of the terminal's Codex; `None` when it runs something else or hc cannot say.
+fn codex_terminal_pid(terminal: &str) -> Option<u32> {
     let output = Command::new("hc")
         .args(["get", terminal, "--json"])
         .stdin(Stdio::null())
         .stderr(Stdio::null())
         .output()
         .ok()?;
-    Some(
-        output.status.success()
-            && codex::terminal_runs_codex(&String::from_utf8_lossy(&output.stdout)),
-    )
+    if !output.status.success() {
+        return None;
+    }
+    codex::codex_terminal_pid(&String::from_utf8_lossy(&output.stdout))
+}
+
+/// Whether this process runs under `root`; false when the process table cannot be read.
+fn runs_under(root: u32) -> bool {
+    Command::new("ps")
+        .args(["-A", "-o", "pid=,ppid="])
+        .stdin(Stdio::null())
+        .stderr(Stdio::null())
+        .output()
+        .is_ok_and(|ps| {
+            let parents = codex::parents(&String::from_utf8_lossy(&ps.stdout));
+            codex::descends_from(&parents, std::process::id(), root)
+        })
 }
 
 fn ingest_codex() -> Result<(), String> {
@@ -122,7 +135,7 @@ fn ingest_codex() -> Result<(), String> {
         return Ok(());
     };
     // Under Codex's shared daemon the hook carries the daemon's terminal, not the session's.
-    if terminal_runs_codex(&terminal) == Some(false) {
+    if !codex_terminal_pid(&terminal).is_some_and(runs_under) {
         return Ok(());
     }
     let prev = store.read(&terminal);

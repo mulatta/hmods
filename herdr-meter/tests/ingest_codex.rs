@@ -24,10 +24,12 @@ fn with_fake_hc() -> String {
 }
 
 fn ingest(state: &std::path::Path, terminal: Option<&str>, path: &str) -> String {
+    // t4's Codex is this test process, an ancestor of the hmeter it starts.
+    let pid = std::process::id().to_string();
     run_in(
         state,
         terminal,
-        &[("PATH", path)],
+        &[("PATH", path), ("HC_FAKE_PID", &pid)],
         &["ingest", "codex"],
         &hook(),
     )
@@ -82,22 +84,32 @@ fn subagents_and_other_events_are_ignored() {
 }
 
 #[test]
-fn only_a_terminal_running_codex_counts() {
-    assert!(codex::terminal_runs_codex(HC_GET_CODEX));
-    assert!(!codex::terminal_runs_codex(HC_GET_CLAUDE));
-    assert!(!codex::terminal_runs_codex(
-        r#"{"error":{"kind":"not_found","message":"no such terminal"}}"#
-    ));
-    assert!(!codex::terminal_runs_codex("not json"));
+fn only_a_terminal_running_codex_names_its_process() {
+    assert_eq!(codex::codex_terminal_pid(HC_GET_CODEX), Some(79561));
+    assert_eq!(codex::codex_terminal_pid(HC_GET_CLAUDE), None);
+    assert_eq!(
+        codex::codex_terminal_pid(r#"{"error":{"kind":"not_found","message":"no such terminal"}}"#),
+        None
+    );
+    assert_eq!(codex::codex_terminal_pid("not json"), None);
+}
+
+#[test]
+fn a_process_descends_from_its_ancestors_only() {
+    let parents = codex::parents("  10     1\n  20    10\n  30    20\n  40     1\n");
+    assert!(codex::descends_from(&parents, 30, 10));
+    assert!(codex::descends_from(&parents, 10, 10));
+    assert!(!codex::descends_from(&parents, 40, 10));
+    assert!(!codex::descends_from(&parents, 99, 10));
 }
 
 #[test]
 fn ingest_records_snapshot_and_prints_nothing() {
     let state = temp_dir("codex");
     let before = now();
-    let out = ingest(&state, Some("t3"), &with_fake_hc());
+    let out = ingest(&state, Some("t4"), &with_fake_hc());
     assert_eq!(out, "");
-    let snap = Store::new(state.join("herdr-meter")).read("t3").unwrap();
+    let snap = Store::new(state.join("herdr-meter")).read("t4").unwrap();
     assert_eq!(snap.agent, "codex");
     assert!(snap.cache.unwrap().expires_at.unwrap() >= before + 300);
     assert_eq!(snap.limits[0].window_minutes, Some(10080));
@@ -108,7 +120,8 @@ fn ingest_records_snapshot_and_prints_nothing() {
 }
 
 // Under Codex's shared app-server daemon the hook inherits the daemon's terminal, which may
-// run another agent or be gone; such requests must not land in that terminal's snapshot.
+// run another agent, be gone, or run another Codex session; such requests must not land in
+// that terminal's snapshot.
 #[test]
 fn requests_from_terminals_not_running_codex_are_dropped() {
     let state = temp_dir("codex-daemon");
@@ -119,9 +132,17 @@ fn requests_from_terminals_not_running_codex_are_dropped() {
 }
 
 #[test]
-fn without_hc_the_terminal_is_taken_at_its_word() {
+fn a_hook_outside_the_terminals_codex_is_dropped() {
+    // t3 runs Codex, but as a process this hook does not run under: the daemon's case.
+    let state = temp_dir("codex-other-session");
+    ingest(&state, Some("t3"), &with_fake_hc());
+    assert!(!state.join("herdr-meter").exists());
+}
+
+#[test]
+fn without_hc_nothing_is_recorded() {
     let state = temp_dir("codex-no-hc");
     let empty = temp_dir("codex-empty-path");
-    ingest(&state, Some("t3"), empty.to_str().unwrap());
-    assert!(Store::new(state.join("herdr-meter")).read("t3").is_some());
+    ingest(&state, Some("t4"), empty.to_str().unwrap());
+    assert!(!state.join("herdr-meter").exists());
 }

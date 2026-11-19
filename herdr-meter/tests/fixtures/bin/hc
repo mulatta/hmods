@@ -3,6 +3,8 @@
 fixtures=$(dirname "$0")/..
 case "$1 $2" in
   "get t3") cat "$fixtures/hc-get-codex.json" ;;
+  # t4 runs Codex as the process the test names, so the hook can run inside it.
+  "get t4") sed "s/79561/$HC_FAKE_PID/g; s/\"t3\"/\"t4\"/" "$fixtures/hc-get-codex.json" ;;
   "get t9") cat "$fixtures/hc-get-claude.json" ;;
   *)
     echo '{"error":{"kind":"not_found","message":"no such terminal","hint":"hc ls"}}' >&2
