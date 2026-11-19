@@ -85,6 +85,11 @@ in
     cargoLock.lockFile = meter + "/Cargo.lock";
     nativeCheckInputs = [ pkgs.ps ];
 
+    postInstall = ''
+      mkdir -p "$out/share/pi"
+      cp -R ${meter + "/pi"} "$out/share/pi/herdr-meter"
+    '';
+
     meta = {
       inherit (cargo) description;
       license = lib.licenses.mit;

@@ -56,7 +56,11 @@ Run Codex with `-c daemon_auto_start=false`. Under Codex's shared app-server
 daemon, a hook gets the terminal id of the daemon, not of the session that
 made the request.
 
-For Pi, load an extension that sends each turn to `hmeter ingest pi`.
+For Pi, install the extension in `herdr-meter/pi/`. It sends each turn to
+`hmeter ingest pi` and shows the time left on the cache in the footer. From a
+checkout, run `pi install ./herdr-meter/pi`. The Nix package ships it at
+`share/pi/herdr-meter`; link `herdr-meter.ts` from there into
+`~/.pi/agent/extensions/`.
 
 ## State
 

@@ -1,0 +1,15 @@
+{
+  "name": "herdr-meter-pi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reports pi's prompt-cache state to hmeter",
+  "type": "module",
+  "keywords": ["pi-package"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": ["herdr-meter.ts"]
+  }
+}
