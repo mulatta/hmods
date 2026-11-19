@@ -35,3 +35,5 @@ esbuild herdr-scene=scripts/mod-entry.js --bundle --splitting --format=esm --tar
   --preserve-symlinks --alias:pele-lazy=./build/pele/src/lazy.ts \
   --external:gpui-kit --external:gpui-base --external:herdr --external:fs/promises \
   '--chunk-names=chunks/[name]-[hash]' --outdir="$out"
+
+esbuild cli/hscene.mjs --bundle --platform=node --format=esm --target=node22 --log-level=warning --outfile=build/hscene.mjs
