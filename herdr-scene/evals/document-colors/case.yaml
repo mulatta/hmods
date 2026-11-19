@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: document-colors
+expected_outcome: |
+  Apply the requested colors to both Mermaid blocks through the document sidecar and verify the result.
+context:
+  scaffold_script: place-files.sh

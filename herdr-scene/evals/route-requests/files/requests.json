@@ -1,0 +1,8 @@
+{
+  "quoted": "My notes on the Mermaid diagram in routes.mmd, lines 1-4:\nParts:\n- connection cli -> api \"submit\" (line 4): cli -->|submit| api\n  note: Which end handles the response?",
+  "group": "herdr-scene notes (mermaid); context: hscene --skill\nMy notes on the Mermaid diagram in routes.mmd, lines 1-4:\nOn the whole: Keep this short.\nGroup 1: Explain how these interact.\n  - element cli \"Client\" (line 2): cli[Client]\n  - element api \"API\" (line 3): api[API]",
+  "view": "Open routes.mmd beside my terminal in Herdr so I can review it.",
+  "style": "In the Mermaid diagram I have open in Herdr, give just this document a softer background.",
+  "figure": "Use matplotlib to create a latency figure from these timings for my paper.",
+  "github": "Fix the Mermaid block in our GitHub README so GitHub renders it correctly."
+}

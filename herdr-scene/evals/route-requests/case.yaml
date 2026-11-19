@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: route-requests
+expected_outcome: |
+  Recognize scene-mod Ask messages and Herdr viewing or styling requests while excluding general plotting and repository-only Mermaid work.
+context:
+  scaffold_script: place-files.sh
