@@ -1,0 +1,5 @@
+{
+  "place": "none",
+  "title": "Mermaid",
+  "overlay": { "kind": "window", "key": "mermaid", "width": 0.62, "height": 0.72 }
+}

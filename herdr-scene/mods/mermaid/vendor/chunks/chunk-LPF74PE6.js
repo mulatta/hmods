@@ -1,0 +1,1 @@
+import{b as r,c as e}from"./chunk-LYWLQ5KJ.js";function u(n,t,i,o,s){return`<svg class="pele-icon" data-icon="${r(n)}" x="${e(t)}" y="${e(i)}" width="${e(o)}" height="${e(o)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s?.(n)??""}</svg>`}export{u as a};

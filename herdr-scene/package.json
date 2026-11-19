@@ -1,0 +1,12 @@
+{
+  "name": "herdr-scene",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Diagrams and math as a renderer-neutral vector scene, drawn natively in Herdr mods.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build": "bash scripts/build.sh"
+  }
+}
