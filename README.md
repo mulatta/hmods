@@ -1,16 +1,15 @@
 # hmods
 
-Herdr mods and the tools that install them. Each top folder is one tool, its
-mods and its herdr.dev share (`RECIPE.md`):
+- [herdr-mermaid](herdr-scene/RECIPE.md) opens the Mermaid diagrams in your
+  repository in a Herdr window. You pick a node or an edge and write a note on
+  it. Ask sends the notes to the tab's agent with the source lines they point
+  at.
+- [herdr-meter](herdr-meter/RECIPE.md) shows when each agent's prompt cache
+  expires, on that agent's ring in the sidebar. It also shows how much of the
+  Claude and Codex rate limits is left.
 
-- `herdr-scene/`: [herdr-mermaid](herdr-scene/RECIPE.md) draws Mermaid diagrams
-  natively. The `hscene` CLI (`check`, `parts`, `install`, `--skill`), the
-  `mermaid` mod with its committed renderer bundle, `keys.json` and the
-  optional `herdr-scene` agent skill.
-- `herdr-meter/`: [herdr-meter](herdr-meter/RECIPE.md) shows coding agents'
-  prompt cache and rate limits. The `hmeter` CLI (Rust) and the `cache` and
-  `usage` mods it installs.
-- `nix/`: how each is built; `flake.nix` only wires them up.
+Each tool has a CLI that installs its mods: `hscene` for herdr-mermaid and
+`hmeter` for herdr-meter.
 
 | herdr-mermaid | herdr-meter |
 | --- | --- |
@@ -105,6 +104,15 @@ After each switch that changes them, run `hscene install` and
 using the cache.
 
 ## Development
+
+Each top folder is one tool, its mods and its herdr.dev share (`RECIPE.md`):
+
+- `herdr-scene/`: the `hscene` CLI (`check`, `parts`, `install`, `--skill`),
+  the `mermaid` mod with its committed renderer bundle, `keys.json` and the
+  optional `herdr-scene` agent skill.
+- `herdr-meter/`: the `hmeter` CLI (Rust) and the `cache` and `usage` mods it
+  installs.
+- `nix/`: how each is built; `flake.nix` only wires them up.
 
 `nix develop` supplies Node.js, esbuild and the pinned pele source. From
 the repository root, rebuild the share bundle and run the tests:

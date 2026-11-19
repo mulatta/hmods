@@ -1,7 +1,8 @@
 # herdr-mermaid
 
-A window that opens the repository's Mermaid diagrams drawn natively in Herdr,
-and sends notes on picked parts to the tab's agent.
+Review the Mermaid diagrams your agent writes inside Herdr. Pick a box or an
+arrow and note what is wrong. The agent gets each note with the exact source
+lines it refers to.
 
 ## Install
 

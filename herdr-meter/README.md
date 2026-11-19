@@ -31,19 +31,32 @@ under `${XDG_STATE_HOME:-~/.local/state}/hmods/backups` and replaces symlinks
 with real folders. Run `hmeter status` after upgrading the binary to see
 which mods need another `hmeter install`.
 
-## Agent integration
+## Connect your agents
 
-- Claude Code: `home/.claude/settings.json` wraps the status line script with
-  `hmeter ingest claude -- ~/.claude/statusline.sh`, which reads this terminal's snapshot
-  back for its cache TTL.
-- Pi: `home/.pi/agent/extensions/herdr-meter.ts` reports turns and shows cache expiry
-  in the footer. Stow deploys this file independently of the package.
-- Codex: `home/.codex/hooks.json` sends `PostModelRequest` JSON to `hmeter ingest codex`.
-  Codex must run with `daemon_auto_start = false`: under its shared app-server daemon
-  the hook inherits the daemon's `HC_TERMINAL_ID`. `hmeter` asks `hc get` and records a
-  request only when that terminal runs Codex.
+hmeter does not edit agent configuration. Add these entries yourself.
 
-`hmeter` does not install extensions or modify agent configuration.
+For Claude Code, wrap your status line command in `~/.claude/settings.json`:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "hmeter ingest claude -- ~/.claude/statusline.sh"
+}
+```
+
+For Codex, add a hook to `~/.codex/hooks.json`:
+
+```json
+{ "hooks": { "PostModelRequest": [
+  { "hooks": [{ "type": "command", "command": "hmeter ingest codex" }] }
+] } }
+```
+
+Run Codex with `-c daemon_auto_start=false`. Under Codex's shared app-server
+daemon, a hook gets the terminal id of the daemon, not of the session that
+made the request.
+
+For Pi, load an extension that sends each turn to `hmeter ingest pi`.
 
 ## State
 

@@ -1,7 +1,8 @@
 # herdr-meter
 
-**cache** is the sidebar's agent list with each agent's prompt cache on its
-ring; **usage** shows Claude and Codex rate-limit windows.
+Shows when each agent's prompt cache expires, so you can send the next
+prompt before it does. Also shows how close Claude and Codex are to their
+rate limits.
 
 ## Install
 
